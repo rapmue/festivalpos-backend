@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 import { UserResponce } from "../dto/user.dto";
 
 dotenv.config();
-const { JWT_SECRET = "" } = process.env;
+const { JWT_SECRET } = process.env;
 export class encrypt {
   static async encryptpass(password: string) {
     return bcrypt.hashSync(password, 12);

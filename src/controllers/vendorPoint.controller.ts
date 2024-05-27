@@ -36,6 +36,34 @@ export const getVendorPoints = async (req: Request, res: Response) => {
     }
   };
 
+  export const getVendorPointProducts = async (req: Request, res: Response) => {
+    try {
+      const stand = await vendorPointRepository.findOne({
+        where: { id: req.params.id },
+        relations: ['vendorPointProducts', 'vendorPointProducts.product'],
+      });
+      if (!stand) {
+        return res.status(404).json({ message: 'Sales stand not found' });
+      }
+  
+      // Map through the vendorPointProducts array and modify product object to include order
+    const productsWithOrder = stand.vendorPointProducts.map((item) => {
+      // Ensure the price is converted to a number
+      const productWithOrder = {
+        ...item.product,
+        price: Number(item.product.price), // Convert price to a number
+        order: item.order,
+      };
+
+      return productWithOrder;
+    });
+  
+      res.json(productsWithOrder);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  };
+
   export const createVendorPoint = async (req: Request, res: Response) => {
     try {
       const { name } = req.body;
