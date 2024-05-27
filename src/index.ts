@@ -14,16 +14,18 @@ import { userRouter } from "./router/user.router";
 
 dotenv.config();
 
+const { PORT = 8080 } = process.env;
+const { APP_HOST = 'localhost' } = process.env;
+
 const options: cors.CorsOptions = {
-    origin: ['localhost:3000']
+    origin: [`${APP_HOST}:${PORT}`]
 };
 
 const app = express();
-app.use(cors());
+app.use(cors(options));
 app.use(express.json());
 app.use(helmet()) 
 app.use(errorHandler);
-const { PORT = 3000 } = process.env;
 
 app.use(apiRouter);
 app.use(userRouter);
@@ -35,7 +37,7 @@ app.get("*", (req: Request, res: Response) => {
 DataSource.initialize()
   .then(async () => {
     app.listen(PORT, () => {
-      console.log("Server is running on http://localhost:" + PORT);
+      console.log(`Server is running on ${APP_HOST}:${PORT}`);
     });
     console.log("Data Source has been initialized!");
   })

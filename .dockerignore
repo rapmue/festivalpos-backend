@@ -4,8 +4,8 @@ node_modules/
 build/
 tmp/
 temp/
+.env
 
 # Logs
 logs
 *.log
-*.env
