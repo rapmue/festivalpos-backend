@@ -6,13 +6,12 @@ import * as cache from "memory-cache";
 
 export class UserController {
   static async signup(req: Request, res: Response) {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
     const encryptedPassword = await encrypt.encryptpass(password);
     const user = new User();
     user.name = name;
     user.email = email;
     user.password = encryptedPassword;
-    user.role = role;
 
     const userRepository = DataSource.getRepository(User);
     await userRepository.save(user);
@@ -44,13 +43,14 @@ export class UserController {
   }
   static async updateUser(req: Request, res: Response) {
     const { id } = req.params;
-    const { name, email } = req.body;
+    const { name, email, role } = req.body;
     const userRepository = DataSource.getRepository(User);
     const user = await userRepository.findOne({
       where: { id },
     });
     user.name = name;
     user.email = email;
+    user.role = role;
     await userRepository.save(user);
     res.status(200).json({ message: "udpdate", user });
   }
