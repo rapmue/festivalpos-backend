@@ -6,10 +6,7 @@ import { authentification } from "../middleware/auth.middleware";
 
 const router = express.Router();
 
-router.get('/', wellcome);
-router.get('/pos/vendor-point/:id', getVendorPointProducts);
-
-// Routes with authentication
+// Routes with authentication and cors
 router.post('/vendor-point/:id/product', authentification, addVendorPointProduct);
 router.delete('/vendor-point/:id/product/:pid', authentification, removeVendorPointProduct);
 router.put('/vendor-point/:id/product/order', authentification, updateVendorPointProductOrder);

@@ -16,13 +16,11 @@ export class UserController {
     const userRepository = DataSource.getRepository(User);
     await userRepository.save(user);
 
-    // userRepository.create({ Name, email, password });
-    const token = encrypt.generateToken({ id: user.id });
-
     return res
       .status(200)
-      .json({ message: "User created successfully", token, user });
+      .json({ message: "User created successfully", name, email });
   }
+
   static async getUsers(req: Request, res: Response) {
     const data = cache.get("data");
     if (data) {
@@ -41,6 +39,7 @@ export class UserController {
       });
     }
   }
+
   static async updateUser(req: Request, res: Response) {
     const { id } = req.params;
     const { name, email, role } = req.body;
@@ -53,6 +52,10 @@ export class UserController {
     user.role = role;
     await userRepository.save(user);
     res.status(200).json({ message: "udpdate", user });
+  }
+
+  static async changeUserPassword(req: Request, res: Response) {
+    //TODO
   }
 
   static async deleteUser(req: Request, res: Response) {

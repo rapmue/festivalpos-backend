@@ -22,6 +22,9 @@ kill_timeout = '5s'
   EXTERNAL_SCHEME = 'https'
   NODE_ENV = 'production'
   PORT = '3000'
+  HOST = 'localhost'
+  ADMIN_APP_HOST = ''
+  ADMIN_APP_PORT = '5173'
 
 [http_service]
   internal_port = 3000
