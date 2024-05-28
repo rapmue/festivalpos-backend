@@ -45,6 +45,7 @@ export const getVendorPoints = async (req: Request, res: Response) => {
 
       // Respond with the name of the stand and the list of products
       return res.json({
+        id: stand.id,
         name: stand.name,
         products: productsWithOrder
       });
