@@ -21,6 +21,39 @@ export const getVendorPoints = async (req: Request, res: Response) => {
     }
   };
 
+  export const getVendorPointByIdforFestivalPOSRN = async (req: Request, res: Response) => {
+    try {
+      const stand = await vendorPointRepository.findOne({
+        where: { id: req.params.id },
+        relations: ['vendorPointProducts', 'vendorPointProducts.product'],
+      });
+      if (!stand) {
+        return res.status(404).json({ message: 'POS not found' });
+      }
+
+      // Map through the vendorPointProducts array and modify product object to include order
+      const productsWithOrder = stand.vendorPointProducts.map((item) => {
+        // Ensure the price is converted to a number
+        const productWithOrder = {
+          ...item.product,
+          price: Number(item.product.price),
+          order: item.order,
+        };
+
+        return productWithOrder;
+      });
+
+      // Respond with the name of the stand and the list of products
+      return res.json({
+        name: stand.name,
+        products: productsWithOrder
+      });
+    } catch (error) {
+      console.error('Failed to fetch vendor point products:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
   export const getVendorPointById = async (req: Request, res: Response) => {
     try {
       const stand = await vendorPointRepository.findOne({
@@ -28,11 +61,14 @@ export const getVendorPoints = async (req: Request, res: Response) => {
         relations: ['vendorPointProducts', 'vendorPointProducts.product'],
       });
       if (!stand) {
-        return res.status(404).json({ message: 'Sales stand not found' });
+        return res.status(404).json({ message: 'POS not found' });
       }
-      res.json(stand);
+
+      // Respond with the name of the stand and the list of products
+      return res.json(stand);
     } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
+      console.error('Failed to fetch vendor point products:', error);
+      return res.status(500).json({ message: 'Internal server error' });
     }
   };
 
@@ -43,7 +79,7 @@ export const getVendorPoints = async (req: Request, res: Response) => {
         relations: ['vendorPointProducts', 'vendorPointProducts.product'],
       });
       if (!stand) {
-        return res.status(404).json({ message: 'Sales stand not found' });
+        return res.status(404).json({ message: 'POS not found' });
       }
   
       // Map through the vendorPointProducts array and modify product object to include order
@@ -51,7 +87,7 @@ export const getVendorPoints = async (req: Request, res: Response) => {
       // Ensure the price is converted to a number
       const productWithOrder = {
         ...item.product,
-        price: Number(item.product.price), // Convert price to a number
+        price: Number(item.product.price),
         order: item.order,
       };
 
