@@ -6,6 +6,7 @@ import { SaleItem } from '../entity/SaleItem';
 const saleRepository = DataSource.getRepository(Sale);
 
 export const createSale = async (req: Request, res: Response) => {
+    console.log(req.body)
     const dataSource = DataSource;
     const queryRunner = dataSource.createQueryRunner();
 
@@ -16,7 +17,11 @@ export const createSale = async (req: Request, res: Response) => {
         const saleRepository = queryRunner.manager.getRepository(Sale);
         const saleItemRepository = queryRunner.manager.getRepository(SaleItem);
 
-        const sale = saleRepository.create(req.body.sale);
+        const saleData = {
+            vendorPoint: req.body.vendorPointId,
+            saleDate: req.body.saleDate
+        };
+        const sale = saleRepository.create(saleData);
         const savedSale = await saleRepository.save(sale);
 
         if (req.body.saleItems && req.body.saleItems.length > 0) {

@@ -7,7 +7,7 @@ import { ViewEntity, ViewColumn, DataSource } from 'typeorm';
         .addSelect("vp.name", "vendor_point_name")
         .addSelect("SUM(si.quantity)", "total_quantity")
         .addSelect("SUM(si.sellingPrice * si.quantity)", "total_revenue")
-        .from("sale_item", "si")
+        .from("sale_items", "si")
         .leftJoin("product", "p", "si.productId = p.id")
         .leftJoin("sales", "s", "si.saleId = s.id")
         .leftJoin("sales_stands", "vp", "s.vendorPointId = vp.id")

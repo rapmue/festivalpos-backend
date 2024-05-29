@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, JoinTable } from 'typeorm';
 import { Product } from './Product';
 import { VendorPointProduct } from './VendorPointProducts';
+import { Sale } from './Sale';
 
 @Entity('sales_stands')
 export class VendorPoints {
@@ -21,4 +22,7 @@ export class VendorPoints {
     onDelete: 'CASCADE'
   })
   vendorPointProducts: VendorPointProduct[];
+
+  @OneToMany(() => Sale, sale => sale.vendorPoint) // Add this line
+  sales: Sale[];
 }
