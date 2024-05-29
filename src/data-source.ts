@@ -16,7 +16,7 @@ let connectionOptions: DataSourceOptions = {
 
   synchronize: false,
   logging: NODE_ENV === "dev" ? true : false,
-  entities: ["src/entity/*{.ts,.js}"],
+  entities: ["src/entity/*{.ts,.js}", "src/entity/views/*{.ts,.js}"],
   migrations: ["src/migrations/*{.ts,.js}"], // where our migrations reside
   subscribers: [],
 };

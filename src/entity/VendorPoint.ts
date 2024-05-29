@@ -16,6 +16,9 @@ export class VendorPoints {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => VendorPointProduct, vendorPointProduct => vendorPointProduct.vendorPoint)
+  @OneToMany(() => VendorPointProduct, vendorPointProduct => vendorPointProduct.vendorPoint, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   vendorPointProducts: VendorPointProduct[];
 }
