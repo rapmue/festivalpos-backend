@@ -2,11 +2,13 @@ import { Request, Response } from 'express';
 import DataSource from '../data-source';
 import { Sale } from '../entity/Sale';
 import { SaleItem } from '../entity/SaleItem';
+import { VendorPoints } from '../entity/VendorPoint';
+import { Product } from '../entity/Product';
 
 const saleRepository = DataSource.getRepository(Sale);
 
 export const createSale = async (req: Request, res: Response) => {
-    console.log(req.body)
+    console.log(req.body);
     const dataSource = DataSource;
     const queryRunner = dataSource.createQueryRunner();
 
@@ -16,9 +18,16 @@ export const createSale = async (req: Request, res: Response) => {
     try {
         const saleRepository = queryRunner.manager.getRepository(Sale);
         const saleItemRepository = queryRunner.manager.getRepository(SaleItem);
+        const productRepository = queryRunner.manager.getRepository(Product);
+
+        // Fetching the VendorPoints entity
+        const vendorPoint = await queryRunner.manager.findOne(VendorPoints, { where: { id: req.body.vendorPointId } });
+        if (!vendorPoint) {
+            throw new Error("Vendor point not found");
+        }
 
         const saleData = {
-            vendorPoint: req.body.vendorPointId,
+            vendorPoint: vendorPoint,
             saleDate: req.body.saleDate
         };
         const sale = saleRepository.create(saleData);
@@ -26,10 +35,19 @@ export const createSale = async (req: Request, res: Response) => {
 
         if (req.body.saleItems && req.body.saleItems.length > 0) {
             for (const item of req.body.saleItems) {
-                const saleItem = saleItemRepository.create({
-                    ...item,
+                // Fetching the Product entity based on productId
+                const product = await productRepository.findOne({ where: { id: item.productId } });
+                if (!product) {
+                    throw new Error(`Product with ID ${item.productId} not found`);
+                }
+
+                const saleItemData = {
+                    product: product,
+                    quantity: item.quantity,
+                    sellingPrice: item.sellingPrice,
                     sale: savedSale
-                });
+                };
+                const saleItem = saleItemRepository.create(saleItemData);
                 await saleItemRepository.save(saleItem);
             }
         }
@@ -37,12 +55,14 @@ export const createSale = async (req: Request, res: Response) => {
         await queryRunner.commitTransaction();
         res.status(201).json(savedSale);
     } catch (error) {
+        console.error('Failed to create sale:', error);
         await queryRunner.rollbackTransaction();
-        res.status(500).json({ message: (error as Error).message });
+        res.status(500).json({ message: error.message });
     } finally {
         await queryRunner.release();
     }
 };
+
 
 export const getSaleById = async (req: Request, res: Response) => {
     try {
