@@ -1,18 +1,21 @@
 import "reflect-metadata"
 import * as dotenv from "dotenv";
 import { DataSource, DataSourceOptions } from "typeorm"
+import * as PostgressConnectionStringParser from "pg-connection-string"
 
 dotenv.config();
 
-const { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE, NODE_ENV } = process.env;
+const { DATABASE_URL, NODE_ENV } = process.env;
+
+const parsedConnection = PostgressConnectionStringParser.parse(DATABASE_URL);
 
 let connectionOptions: DataSourceOptions = {
   type: "postgres",
-  host: DB_HOST,
-  port: parseInt(DB_PORT || "5432"),
-  username: DB_USERNAME,
-  password: DB_PASSWORD,
-  database: DB_DATABASE,
+  host: parsedConnection.host,
+  port: parseInt(parsedConnection.port || "5432"),
+  username: parsedConnection.user,
+  password: parsedConnection.password,
+  database: parsedConnection.database,
 
   synchronize: false,
   logging: NODE_ENV === "dev" ? true : false,

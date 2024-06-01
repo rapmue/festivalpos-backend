@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for festivalpos-backend on 2024-05-27T12:18:25+02:00
+# fly.toml app configuration file generated for festivalpos-backend on 2024-06-01T14:28:57+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -17,14 +17,14 @@ kill_timeout = '5s'
   release_command = 'npm run typeorm:migrate'
 
 [env]
+  ADMIN_APP_HOST = ''
+  ADMIN_APP_PORT = '5173'
   EXTERNAL_HOST = 'festivalpos.aufgetischt.sg'
   EXTERNAL_PORT = '443'
   EXTERNAL_SCHEME = 'https'
+  HOST = 'localhost'
   NODE_ENV = 'production'
   PORT = '3000'
-  HOST = 'localhost'
-  ADMIN_APP_HOST = ''
-  ADMIN_APP_PORT = '5173'
 
 [http_service]
   internal_port = 3000
@@ -37,6 +37,14 @@ kill_timeout = '5s'
     type = 'requests'
     hard_limit = 250
     soft_limit = 200
+
+[[services]]
+  protocol = ''
+  internal_port = 0
+
+  [[services.ports]]
+    port = 443
+    handlers = ['tls', 'http']
 
 [[vm]]
   memory = '1gb'
