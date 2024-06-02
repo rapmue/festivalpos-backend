@@ -8,9 +8,7 @@ export class AuthController {
     try {
       const { email, password } = req.body;
       if (!email || !password) {
-        return res
-          .status(500)
-          .json({ message: "Email and password required" });
+        return res.status(500).json({ message: "Email and password required" });
       }
 
       const userRepository = DataSource.getRepository(User);

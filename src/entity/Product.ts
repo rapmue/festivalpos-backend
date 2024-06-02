@@ -1,17 +1,26 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { VendorPoints } from './VendorPoint';
-import { VendorPointProduct } from './VendorPointProducts';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from "typeorm";
+import { VendorPoints } from "./VendorPoint";
+import { VendorPointProduct } from "./VendorPointProducts";
+import { Festival } from "./Festival";
 
 @Entity()
 export class Product {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
   name: string;
 
-  @Column('decimal', { precision: 5, scale: 2 })
-  price: number
+  @Column("decimal", { precision: 5, scale: 2 })
+  price: number;
 
   @Column({ nullable: true })
   tilecolor?: string;
@@ -25,9 +34,19 @@ export class Product {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => VendorPointProduct, vendorPointProduct => vendorPointProduct.product, {
-    cascade: true,
-    onDelete: 'CASCADE'
-  })
+  @OneToMany(
+    () => VendorPointProduct,
+    (vendorPointProduct) => vendorPointProduct.product,
+    {
+      cascade: true,
+      onDelete: "CASCADE",
+    },
+  )
   vendorPointProducts: VendorPointProduct[];
+
+  @ManyToOne(() => Festival, (festival) => festival.products, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
+  festival: Festival;
 }

@@ -1,7 +1,7 @@
-import "reflect-metadata"
+import "reflect-metadata";
 import * as dotenv from "dotenv";
-import { DataSource, DataSourceOptions } from "typeorm"
-import * as PostgressConnectionStringParser from "pg-connection-string"
+import { DataSource, DataSourceOptions } from "typeorm";
+import * as PostgressConnectionStringParser from "pg-connection-string";
 
 dotenv.config();
 

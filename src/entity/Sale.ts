@@ -1,18 +1,24 @@
-import { Entity, PrimaryGeneratedColumn, OneToMany, CreateDateColumn, ManyToOne } from 'typeorm';
-import { VendorPoints } from './VendorPoint';
-import { SaleItem } from './SaleItem';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  CreateDateColumn,
+  ManyToOne,
+} from "typeorm";
+import { VendorPoints } from "./VendorPoint";
+import { SaleItem } from "./SaleItem";
 
-@Entity('sales')
+@Entity("sales")
 export class Sale {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => VendorPoints)
   vendorPoint: VendorPoints;
 
-  @OneToMany(() => SaleItem, saleItem => saleItem.sale, {
+  @OneToMany(() => SaleItem, (saleItem) => saleItem.sale, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: "CASCADE",
   })
   saleItems: SaleItem[];
 

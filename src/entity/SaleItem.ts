@@ -1,21 +1,21 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
-import { Sale } from './Sale';
-import { Product } from './Product';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
+import { Sale } from "./Sale";
+import { Product } from "./Product";
 
-@Entity('sale_items')
+@Entity("sale_items")
 export class SaleItem {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToOne(() => Sale, sale => sale.saleItems)
+  @ManyToOne(() => Sale, (sale) => sale.saleItems)
   sale: Sale;
 
   @ManyToOne(() => Product)
   product: Product;
 
-  @Column('int')
+  @Column("int")
   quantity: number;
 
-  @Column('decimal', { precision: 5, scale: 2 })
+  @Column("decimal", { precision: 5, scale: 2 })
   sellingPrice: number;
 }
