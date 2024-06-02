@@ -11,22 +11,18 @@ Steps to start the backend server:
 3. Setup environment variables (.env):
 
 ```bash
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=setYourPassword
-DB_NAME=postgres
+DATABASE_URL=postgres://postgres:setYourPw@localhost:5432/postgres
+PORT=3000
 
-
-APP_HOST=localhost
-PORT=8080
-JWT_SECRET=someJWTSecretRandomString
+ADMIN_APP_HOST=localhost
+ADMIN_APP_PORT=5173
+JWT_SECRET=SomeRandomJWTString
 ```
 
 4. Run `npm run typeorm:migrate`
 5. Start dev server with `npm run dev`
 
-Now you can visit [`localhost:3000`](http://localhost:3000) and should get a wellcome JSON.
+Now you can visit [`localhost:3000`](http://localhost:3000) and should get a welcome JSON.
 
 ### Generate migrations
 `npm run typeorm:generate -- ./src/migrations/CreateUser`
