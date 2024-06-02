@@ -10,9 +10,9 @@ export class CreateUsers1716645261733 implements MigrationInterface {
     );
 
     // Create an admin user
-    const hashedPassword = await encrypt.encryptpass("passwd");
+    const hashedPassword = await encrypt.encryptpass("SetPassword");
     await queryRunner.query(
-      `INSERT INTO "users" ("name", "email", "password", "role") VALUES ('admin', 'sebastian@aufgetischt.sg', $1, 'admin')`,
+      `INSERT INTO "users" ("name", "email", "password", "role") VALUES ('admin', 'youmail@example.com', $1, 'admin')`,
       [hashedPassword],
     );
   }
