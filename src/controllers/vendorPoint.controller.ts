@@ -277,8 +277,6 @@ export const moveProductUp = async (req: Request, res: Response) => {
   const vendorPointId = req.params.vid;
   const productId = req.params.pid;
 
-  console.log("Move up");
-
   try {
     const vendorPointProduct = await vendorPointProductRepository.findOne({
       where: { vendorPoint: { id: vendorPointId }, product: { id: productId } },
@@ -324,7 +322,6 @@ export const moveProductDown = async (req: Request, res: Response) => {
   const vendorPointId = req.params.vid;
   const productId = req.params.pid;
 
-  console.log("Move down");
   try {
     const vendorPointProduct = await vendorPointProductRepository.findOne({
       where: { vendorPoint: { id: vendorPointId }, product: { id: productId } },
