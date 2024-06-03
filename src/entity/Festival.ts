@@ -5,6 +5,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from "typeorm";
 import { Product } from "./Product";
 import { Sale } from "./Sale";
@@ -27,9 +28,16 @@ export class Festival {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Product, (product) => product.festival)
+  @DeleteDateColumn()
+  deletedAt?: Date;
+
+  @OneToMany(() => Product, (product) => product.festival, {
+    cascade: true,
+  })
   products: Product[];
 
-  @OneToMany(() => VendorPoints, (vendorPoint) => vendorPoint.festival)
+  @OneToMany(() => VendorPoints, (vendorPoint) => vendorPoint.festival, {
+    cascade: true,
+  })
   vendorPoints: VendorPoints[];
 }

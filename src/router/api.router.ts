@@ -5,9 +5,10 @@ import {
   deleteVendorPoint,
   getVendorPointById,
   getVendorPoints,
+  moveProductDown,
+  moveProductUp,
   removeVendorPointProduct,
   updateVendorPoint,
-  updateVendorPointProductOrder,
 } from "../controllers/vendorPoint.controller";
 import {
   createProduct,
@@ -45,9 +46,14 @@ router.delete(
   removeVendorPointProduct,
 );
 router.put(
-  "/vendor-point/:id/product/order",
+  "/vendor-point/:vid/product/:pid/move-up",
   authentification,
-  updateVendorPointProductOrder,
+  moveProductUp,
+);
+router.put(
+  "/vendor-point/:vid/product/:pid/move-down",
+  authentification,
+  moveProductDown,
 );
 router.get("/vendor-points/:fid", authentification, getVendorPoints);
 router.get("/vendor-point/:id", authentification, getVendorPointById);

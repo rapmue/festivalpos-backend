@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  DeleteDateColumn,
 } from "typeorm";
 import { VendorPoints } from "./VendorPoint";
 import { VendorPointProduct } from "./VendorPointProducts";
@@ -34,18 +35,19 @@ export class Product {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @DeleteDateColumn()
+  deletedAt?: Date;
+
   @OneToMany(
     () => VendorPointProduct,
     (vendorPointProduct) => vendorPointProduct.product,
     {
       cascade: true,
-      onDelete: "CASCADE",
     },
   )
   vendorPointProducts: VendorPointProduct[];
 
   @ManyToOne(() => Festival, (festival) => festival.products, {
-    cascade: true,
     onDelete: "CASCADE",
   })
   festival: Festival;

@@ -92,12 +92,20 @@ export const getSaleById = async (req: Request, res: Response) => {
 
 export const deleteSale = async (req: Request, res: Response) => {
   try {
-    const result = await saleRepository.delete(req.params.id);
-    if (result.affected === 0) {
+    const sale = await saleRepository.findOne({
+      where: { id: req.params.id },
+      relations: ["saleItems"],
+    });
+
+    if (!sale) {
       return res.status(404).json({ message: "Sale not found" });
     }
+
+    await saleRepository.softRemove(sale);
+
     res.status(204).send();
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: (error as Error).message });
   }
 };

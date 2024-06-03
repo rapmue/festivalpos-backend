@@ -58,12 +58,26 @@ export const updateFestival = async (req: Request, res: Response) => {
 
 export const deleteFestival = async (req: Request, res: Response) => {
   try {
-    const result = await festivalRepository.delete(req.params.id);
-    if (result.affected === 0) {
+    const festival = await festivalRepository.findOne({
+      where: { id: req.params.id },
+      relations: [
+        "vendorPoints",
+        "vendorPoints.sales",
+        "vendorPoints.sales.saleItems",
+        "products",
+        "products.vendorPointProducts",
+      ],
+    });
+
+    if (!festival) {
       return res.status(404).json({ message: "Festival not found" });
     }
+
+    await festivalRepository.softRemove(festival);
+
     res.status(204).send();
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: (error as Error).message });
   }
 };

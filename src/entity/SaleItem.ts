@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Column,
+  DeleteDateColumn,
+} from "typeorm";
 import { Sale } from "./Sale";
 import { Product } from "./Product";
 
@@ -7,7 +13,9 @@ export class SaleItem {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToOne(() => Sale, (sale) => sale.saleItems)
+  @ManyToOne(() => Sale, (sale) => sale.saleItems, {
+    onDelete: "CASCADE",
+  })
   sale: Sale;
 
   @ManyToOne(() => Product)
@@ -18,4 +26,7 @@ export class SaleItem {
 
   @Column("decimal", { precision: 5, scale: 2 })
   sellingPrice: number;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

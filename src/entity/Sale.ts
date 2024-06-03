@@ -4,6 +4,7 @@ import {
   OneToMany,
   CreateDateColumn,
   ManyToOne,
+  DeleteDateColumn,
 } from "typeorm";
 import { VendorPoints } from "./VendorPoint";
 import { SaleItem } from "./SaleItem";
@@ -13,15 +14,19 @@ export class Sale {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToOne(() => VendorPoints)
+  @ManyToOne(() => VendorPoints, (vendorPoint) => vendorPoint.sales, {
+    onDelete: "CASCADE",
+  })
   vendorPoint: VendorPoints;
 
   @OneToMany(() => SaleItem, (saleItem) => saleItem.sale, {
     cascade: true,
-    onDelete: "CASCADE",
   })
   saleItems: SaleItem[];
 
   @CreateDateColumn()
   saleDate: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

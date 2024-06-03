@@ -140,19 +140,36 @@ export const removeVendorPointProduct = async (req: Request, res: Response) => {
         .json({ message: "Product does not exist at that vending point" });
     }
 
-    await vendorPointProductRepository.remove(vendorPointProduct);
+    const orderToRemove = vendorPointProduct.order;
+
+    await vendorPointProductRepository.softRemove(vendorPointProduct);
+
+    // Update the order of all subsequent vendorPointProducts
+    await vendorPointProductRepository
+      .createQueryBuilder()
+      .update(VendorPointProduct)
+      .set({ order: () => `"order" - 1` })
+      .where('vendorPointId = :vendorPointId AND "order" > :order', {
+        vendorPointId: req.params.id,
+        order: orderToRemove,
+      })
+      .execute();
+
     res.status(204).send();
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: (error as Error).message });
   }
 };
 
 export const addVendorPointProduct = async (req: Request, res: Response) => {
   try {
-    const { productId, order } = req.body;
-    const product = await productRepository.findOneBy({ id: productId });
-    const vendorPoint = await vendorPointRepository.findOneBy({
-      id: req.params.id,
+    const { productId } = req.body;
+    const product = await productRepository.findOne({
+      where: { id: productId },
+    });
+    const vendorPoint = await vendorPointRepository.findOne({
+      where: { id: req.params.id },
     });
 
     if (!vendorPoint) {
@@ -162,28 +179,59 @@ export const addVendorPointProduct = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    // Check for existing relation including soft-deleted ones
     const existingRelation = await vendorPointProductRepository.findOne({
       where: {
         vendorPoint: { id: vendorPoint.id },
         product: { id: product.id },
       },
+      withDeleted: true, // Include soft-deleted entries in the query
     });
 
     if (existingRelation) {
-      return res
-        .status(400)
-        .json({ message: "Product already exists at that vending point" });
+      if (existingRelation.deletedAt) {
+        // Restore soft-deleted record
+        existingRelation.deletedAt = null;
+        // Find the highest order value for the given vendor point
+        const highestOrder = await vendorPointProductRepository
+          .createQueryBuilder("vendorPointProduct")
+          .where("vendorPointProduct.vendorPointId = :vendorPointId", {
+            vendorPointId: vendorPoint.id,
+          })
+          .select("MAX(vendorPointProduct.order)", "maxOrder")
+          .getRawOne();
+
+        existingRelation.order = (highestOrder.maxOrder || 0) + 1;
+        await vendorPointProductRepository.save(existingRelation);
+        return res.json(existingRelation);
+      } else {
+        return res
+          .status(400)
+          .json({ message: "Product already exists at that vending point" });
+      }
     }
+
+    // Find the highest order value for the given vendor point
+    const highestOrder = await vendorPointProductRepository
+      .createQueryBuilder("vendorPointProduct")
+      .where("vendorPointProduct.vendorPointId = :vendorPointId", {
+        vendorPointId: vendorPoint.id,
+      })
+      .select("MAX(vendorPointProduct.order)", "maxOrder")
+      .getRawOne();
+
+    const newOrder = (highestOrder.maxOrder || 0) + 1;
 
     const vendorPointProduct = vendorPointProductRepository.create({
       vendorPoint,
       product,
-      order,
+      order: newOrder,
     });
 
     await vendorPointProductRepository.save(vendorPointProduct);
     res.json(vendorPointProduct);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: (error as Error).message });
   }
 };
@@ -207,32 +255,112 @@ export const updateVendorPoint = async (req: Request, res: Response) => {
 
 export const deleteVendorPoint = async (req: Request, res: Response) => {
   try {
-    const result = await vendorPointRepository.delete(req.params.id);
-    if (result.affected === 0) {
+    const vendorPoint = await vendorPointRepository.findOne({
+      where: { id: req.params.id },
+      relations: ["sales", "sales.saleItems", "vendorPointProducts"],
+    });
+
+    if (!vendorPoint) {
       return res.status(404).json({ message: "Sales stand not found" });
     }
+
+    await vendorPointRepository.softRemove(vendorPoint);
+
     res.status(204).send();
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: (error as Error).message });
   }
 };
 
-export const updateVendorPointProductOrder = async (
-  req: Request,
-  res: Response,
-) => {
-  const vendorPointId = req.params.id;
-  const productOrders = req.body.productOrders; // Expecting an array of { productId, order }
+export const moveProductUp = async (req: Request, res: Response) => {
+  const vendorPointId = req.params.vid;
+  const productId = req.params.pid;
+
+  console.log("Move up");
 
   try {
-    await VendorPointProductService.updateProductOrder(
-      vendorPointId,
-      productOrders,
-    );
-    res.status(200).json({ message: "Product order updated successfully" });
+    const vendorPointProduct = await vendorPointProductRepository.findOne({
+      where: { vendorPoint: { id: vendorPointId }, product: { id: productId } },
+    });
+
+    if (!vendorPointProduct) {
+      return res
+        .status(404)
+        .json({ message: "Product not found at the vending point" });
+    }
+
+    const previousProduct = await vendorPointProductRepository.findOne({
+      where: {
+        vendorPoint: { id: vendorPointId },
+        order: vendorPointProduct.order - 1,
+      },
+    });
+
+    if (!previousProduct) {
+      console.log("Product already at the top");
+      return res.status(400).json({ message: "Product is already at the top" });
+    }
+
+    // Swap orders
+    [vendorPointProduct.order, previousProduct.order] = [
+      previousProduct.order,
+      vendorPointProduct.order,
+    ];
+
+    await vendorPointProductRepository.save([
+      vendorPointProduct,
+      previousProduct,
+    ]);
+
+    res.status(204).send();
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "An error occurred", error: (error as Error).message });
+    console.error(error);
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export const moveProductDown = async (req: Request, res: Response) => {
+  const vendorPointId = req.params.vid;
+  const productId = req.params.pid;
+
+  console.log("Move down");
+  try {
+    const vendorPointProduct = await vendorPointProductRepository.findOne({
+      where: { vendorPoint: { id: vendorPointId }, product: { id: productId } },
+    });
+
+    if (!vendorPointProduct) {
+      return res
+        .status(404)
+        .json({ message: "Product not found at the vending point" });
+    }
+
+    const nextProduct = await vendorPointProductRepository.findOne({
+      where: {
+        vendorPoint: { id: vendorPointId },
+        order: vendorPointProduct.order + 1,
+      },
+    });
+
+    if (!nextProduct) {
+      console.log("Product already at the bottom");
+      return res
+        .status(400)
+        .json({ message: "Product is already at the bottom" });
+    }
+
+    // Swap orders
+    [vendorPointProduct.order, nextProduct.order] = [
+      nextProduct.order,
+      vendorPointProduct.order,
+    ];
+
+    await vendorPointProductRepository.save([vendorPointProduct, nextProduct]);
+
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: (error as Error).message });
   }
 };

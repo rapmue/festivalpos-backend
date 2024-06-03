@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   JoinTable,
   ManyToOne,
+  DeleteDateColumn,
 } from "typeorm";
 import { Product } from "./Product";
 import { VendorPointProduct } from "./VendorPointProducts";
@@ -27,21 +28,24 @@ export class VendorPoints {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @DeleteDateColumn()
+  deletedAt?: Date;
+
   @OneToMany(
     () => VendorPointProduct,
     (vendorPointProduct) => vendorPointProduct.vendorPoint,
     {
       cascade: true,
-      onDelete: "CASCADE",
     },
   )
   vendorPointProducts: VendorPointProduct[];
 
-  @OneToMany(() => Sale, (sale) => sale.vendorPoint) // Add this line
+  @OneToMany(() => Sale, (sale) => sale.vendorPoint, {
+    cascade: true,
+  })
   sales: Sale[];
 
   @ManyToOne(() => Festival, (festival) => festival.vendorPoints, {
-    cascade: true,
     onDelete: "CASCADE",
   })
   festival: Festival;
