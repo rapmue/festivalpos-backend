@@ -42,6 +42,7 @@
     "typeorm:generate": "npm run typeorm migration:generate -- -d src/data-source.ts",
     "typeorm:migrate": "npm run typeorm migration:run -- -d ./src/data-source.ts",
     "typeorm:revert": "npm run typeorm migration:revert -- -d src/data-source.ts",
-    "typeorm:drop": "npm run typeorm schema:drop -- -d src/data-source.ts"
+    "typeorm:drop": "npm run typeorm schema:drop -- -d src/data-source.ts",
+    "migrate-and-start": "npm run typeorm:migrate && npm run start"
   }
 }
