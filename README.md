@@ -17,6 +17,10 @@ PORT=3000
 ADMIN_APP_HOST=localhost
 ADMIN_APP_PORT=5173
 JWT_SECRET=SomeRandomJWTString
+
+INITIAL_ADMIN_NAME=admin
+INITIAL_ADMIN_EMAIL=yourmail@example.com
+INITIAL_ADMIN_PASSWORD=SetPassword
 ```
 
 4. Run `npm run typeorm:migrate`
